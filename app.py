@@ -1,5 +1,5 @@
 import streamlit as st
-import database.database_setup
+import database.database
 # -------------------------
 # Page Configuration
 # -------------------------
