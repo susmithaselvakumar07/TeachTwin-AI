@@ -1,0 +1,6 @@
+streamlit
+python-dotenv
+google-generativeai
+pypdf
+qrcode
+Pillow
