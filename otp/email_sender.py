@@ -1,69 +1,56 @@
 import smtplib
-from email.message import EmailMessage
-from pathlib import Path
+import streamlit as st
+from email.mime.text import MIMEText
 from dotenv import dotenv_values
 
-# ------------------------------------
-# Load .env
-# ------------------------------------
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Try local .env first
+config = dotenv_values(".env")
 
-config = dotenv_values(BASE_DIR / ".env")
+MAIL_ID = config.get("MAIL_ID")
+PASSWORD = config.get("PASSWORD")
 
-sender_email = config.get("MAIL_ID")
-password = config.get("PASSWORD")
-
-# Debug (Remove after testing)
-print("Sender Email:", sender_email)
-print("Password Loaded:", "YES" if password else "NO")
+# If running on Streamlit Cloud, use Secrets
+if not MAIL_ID or not PASSWORD:
+    MAIL_ID = st.secrets.get("MAIL_ID")
+    PASSWORD = st.secrets.get("PASSWORD")
 
 
-# ------------------------------------
-# Send OTP Email
-# ------------------------------------
 def send_otp(receiver_email, otp):
 
-    # Safety check
-    if not sender_email or not password:
+    if not MAIL_ID or not PASSWORD:
         raise Exception(
-            "MAIL_ID or PASSWORD not found in .env"
+            "MAIL_ID or PASSWORD not found in environment settings."
         )
 
-    msg = EmailMessage()
+    subject = "TeachTwin AI - OTP Verification"
 
-    msg["Subject"] = "TeachTwin AI - OTP Verification"
-
-    msg["From"] = sender_email
-
-    msg["To"] = receiver_email
-
-    msg.set_content(f"""
+    body = f"""
 Hello,
 
-Your TeachTwin AI verification OTP is:
+Your TeachTwin AI OTP is:
 
 {otp}
 
-This OTP is valid for 5 minutes.
-
-Please do not share this OTP with anyone.
+This OTP is valid for verification.
 
 Thank you,
-TeachTwin AI Team
-""")
+TeachTwin AI
+"""
 
-    try:
+    message = MIMEText(body)
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+    message["Subject"] = subject
+    message["From"] = MAIL_ID
+    message["To"] = receiver_email
 
-            server.login(sender_email, password)
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
 
-            server.send_message(msg)
+        server.starttls()
 
-        return True
+        server.login(MAIL_ID, PASSWORD)
 
-    except Exception as e:
-
-        print("Email Sending Error:", e)
-
-        return False
+        server.sendmail(
+            MAIL_ID,
+            receiver_email,
+            message.as_string()
+        )
