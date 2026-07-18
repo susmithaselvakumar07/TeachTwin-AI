@@ -1,5 +1,9 @@
 import streamlit as st
 import sqlite3
+from database.database import initialize_database
+
+initialize_database()
+
 
 st.set_page_config(
     page_title="TeachTwin AI",

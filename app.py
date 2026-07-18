@@ -1,5 +1,7 @@
 import streamlit as st
-import database.database
+from database.database import initialize_database
+
+initialize_database()
 # -------------------------
 # Page Configuration
 # -------------------------
