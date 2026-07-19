@@ -128,7 +128,8 @@ if st.button("🚀 Create Account", use_container_width=True):
             "email": email,
             "password": password,
             "department": department,
-            "subject": subject
+            "subject": subject,
+            "institution": institution
             }
 
             st.session_state.teacher_otp_sent = True
