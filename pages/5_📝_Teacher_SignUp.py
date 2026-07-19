@@ -136,7 +136,7 @@ if st.button("🚀 Create Account", use_container_width=True):
             st.success("✅ OTP sent to your email.")
             
             conn.close()
-            # -----------------------------
+# -----------------------------
 # OTP Verification
 # -----------------------------
 if st.session_state.teacher_otp_sent:
@@ -159,15 +159,17 @@ if st.session_state.teacher_otp_sent:
             cursor = conn.cursor()
 
             cursor.execute("""
-            INSERT INTO teachers
-            (full_name,email,password,department,subject,teachtwin_id)
-            VALUES(?,?,?,?,?,?)
-            """,(
+                INSERT INTO teachers
+                (full_name, email, password, department, subject, college, teachtwin_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
                 data["name"],
                 data["email"],
                 data["password"],
                 data["department"],
                 data["subject"],
+                data["institution"],
                 teacher_id
             ))
 
