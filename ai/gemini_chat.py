@@ -37,6 +37,15 @@ If the answer is not found in the study material, reply:
 "Sorry, this topic is not available in your teacher's uploaded notes."
 """
 
-    response = model.generate_content(prompt)
+    try:
 
-    return response.text
+        response = model.generate_content(prompt)
+
+        if response and response.text:
+            return response.text
+
+        return "Sorry, I couldn't generate an answer."
+
+    except Exception as e:
+
+        return f"AI Error: {str(e)}"
