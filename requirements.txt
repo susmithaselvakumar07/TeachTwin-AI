@@ -5,3 +5,4 @@ pypdf
 qrcode
 Pillow
 streamlit-javascript
+PyMuPDF
