@@ -3,48 +3,68 @@ import streamlit as st
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-# Load local .env
+
+# -----------------------------
+# Load Environment Variables
+# -----------------------------
 load_dotenv()
 
-# Try local .env first
 api_key = os.getenv("GOOGLE_API_KEY")
 
-# If not available, use Streamlit Cloud Secrets
 if not api_key:
     api_key = st.secrets.get("GOOGLE_API_KEY")
 
+
+# -----------------------------
 # Configure Gemini
+# -----------------------------
+if not api_key:
+    st.error("Google API key not found.")
+    st.stop()
+
 genai.configure(api_key=api_key)
 
+
+# -----------------------------
 # Gemini Model
-model = genai.GenerativeModel("gemini-2.5-flash")
+# -----------------------------
+model = genai.GenerativeModel(
+    "gemini-2.5-flash"
+)
 
 
+# -----------------------------
+# Ask TeachTwin AI
+# -----------------------------
 def ask_teachtwin(context, question):
 
     prompt = f"""
 You are TeachTwin AI.
 
-Answer ONLY from the teacher's uploaded study material.
+Answer the student's question using ONLY the teacher's uploaded study material.
 
-Study Material:
+Teacher's Study Material:
 {context}
 
 Student Question:
 {question}
 
-If the answer is not found in the study material, reply:
-"Sorry, this topic is not available in your teacher's uploaded notes."
+If the answer cannot be found in the study material, say:
+
+Sorry, this topic is not available in your teacher's uploaded notes.
 """
 
     try:
 
-        response = model.generate_content(prompt)
+        response = model.generate_content(
+            prompt
+        )
 
         if response and response.text:
+
             return response.text
 
-        return "Sorry, I couldn't generate an answer."
+        return "Sorry, I could not generate an answer."
 
     except Exception as e:
 
