@@ -102,28 +102,30 @@ if question:
         "content": question
     })
 
-        # AI Thinking
+    # AI Thinking
     with st.spinner("TeachTwin is thinking... 🤖"):
 
-        relevant_context = find_relevant_context(
-            all_notes,
+    st.write("🔍 Searching study material...")
+
+    relevant_context = find_relevant_context(
+        all_notes,
+        question
+    )
+
+    st.write("✅ Study material search completed.")
+
+    if relevant_context.strip() == "":
+        answer = "Sorry, I couldn't find this topic in your teacher's uploaded notes."
+
+    else:
+        st.write("🤖 Sending question to Gemini...")
+
+        answer = ask_teachtwin(
+            relevant_context,
             question
         )
 
-        if relevant_context.strip() == "":
-
-            answer = (
-                "Sorry, I couldn't find this topic "
-                "in your teacher's uploaded notes."
-            )
-
-        else:
-
-            answer = ask_teachtwin(
-                relevant_context,
-                question
-            )
-
+        st.write("✅ Gemini response received.")
     # Show AI Message
     with st.chat_message("assistant"):
         st.write(answer)
