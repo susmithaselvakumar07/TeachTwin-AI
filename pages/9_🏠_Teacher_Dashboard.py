@@ -208,16 +208,35 @@ Share this ID with your students to connect with your AI Twin.
 # Buttons
 # ------------------------------------
 btn1, btn2 = st.columns(2)
-
 with btn1:
 
-    if st.button("📋 Copy ID", use_container_width=True):
+    components.html(
+        f"""
+        <button onclick="copyID()"
+        style="
+        width:100%;
+        padding:12px;
+        border-radius:8px;
+        border:none;
+        background:#2563EB;
+        color:white;
+        font-size:16px;
+        cursor:pointer;
+        ">
+        📋 Copy ID
+        </button>
 
-        st_javascript(
-            f"navigator.clipboard.writeText('{teacher_id}')"
-        )
+        <script>
+        function copyID() {{
+            navigator.clipboard.writeText("{teacher_id}");
+            alert("TeachTwin ID copied!");
+        }}
+        </script>
+        """,
+        height=60
+    )
 
-        st.success("✅ TeachTwin ID copied to clipboard!")
+          
 with btn2:
 
     if st.button("📱 Generate QR", use_container_width=True):
