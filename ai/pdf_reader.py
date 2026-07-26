@@ -1,22 +1,40 @@
 import fitz
+import tempfile
+import os
 
 
 def extract_pdf_text(uploaded_file):
 
-    # Read the uploaded PDF directly from memory
-    pdf_bytes = uploaded_file.getvalue()
+    # Create a temporary PDF file
+    with tempfile.NamedTemporaryFile(
+        delete=False,
+        suffix=".pdf"
+    ) as temp_file:
 
-    # Open PDF from memory
-    pdf_document = fitz.open(
-        stream=pdf_bytes,
-        filetype="pdf"
-    )
+        temp_file.write(
+            uploaded_file.getvalue()
+        )
 
-    extracted_text = ""
+        temp_file_path = temp_file.name
 
-    for page in pdf_document:
-        extracted_text += page.get_text()
+    try:
 
-    pdf_document.close()
+        # Open the temporary PDF file
+        pdf_document = fitz.open(
+            temp_file_path
+        )
 
-    return extracted_text
+        extracted_text = ""
+
+        for page in pdf_document:
+            extracted_text += page.get_text()
+
+        pdf_document.close()
+
+        return extracted_text
+
+    finally:
+
+        # Delete temporary file
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
