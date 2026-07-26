@@ -104,18 +104,29 @@ submission_count = cursor.fetchone()[0]
 conn.close()
 
 # ------------------------------------
-# Header
+# Professional Header
 # ------------------------------------
-col1, col2, col3 = st.columns([7,1,1])
 
-with col1:
-    st.title("🤖 TeachTwin AI")
+header_col1, header_col2 = st.columns([8, 2])
 
-with col2:
+with header_col1:
+    st.markdown(
+        """
+        <h1 style="margin-bottom:0;">
+            🤖 TeachTwin AI
+        </h1>
+        <p style="color:gray; margin-top:0;">
+            Your Knowledge. Your AI. Your Students.
+        </p>
+        """,
+        unsafe_allow_html=True
+    )
+
+with header_col2:
+
     st.image("favicon.png", width=55)
 
-with col3:
-    if st.button("🚪 Logout"):
+    if st.button("🚪 Logout", use_container_width=True):
         st.session_state.clear()
         st.switch_page("app.py")
 
@@ -170,45 +181,27 @@ with c4:
         "📥 Submissions",
         submission_count
     )
-
 # ------------------------------------
-# TeachTwin ID Card
+# TeachTwin Connection Center
 # ------------------------------------
-st.markdown(f"""
-<div style="
-background:white;
-padding:25px;
-border-radius:18px;
-box-shadow:0px 4px 12px rgba(0,0,0,0.12);
-margin-bottom:20px;
-">
 
-<h4 style="color:#2563EB;">
+st.divider()
+
+st.subheader("🔗 Connect Students to Your AI Twin")
+
+id_col, qr_col = st.columns([1.5, 1])
+
+with id_col:
+
+    st.info(
+        f"""
 🆔 Your TeachTwin ID
-</h4>
 
-<h2 style="
-text-align:center;
-color:#1E293B;
-">
 {teacher_id}
-</h2>
 
-<p style="
-text-align:center;
-color:gray;
-">
-Share this ID with your students to connect with your AI Twin.
-</p>
-
-</div>
-""", unsafe_allow_html=True)
-
-# ------------------------------------
-# Buttons
-# ------------------------------------
-btn1, btn2 = st.columns(2)
-with btn1:
+Share this ID with your students to connect them with your AI Twin.
+"""
+    )
 
     components.html(
         f"""
@@ -216,47 +209,60 @@ with btn1:
         style="
         width:100%;
         padding:12px;
-        border-radius:8px;
+        border-radius:10px;
         border:none;
         background:#2563EB;
         color:white;
         font-size:16px;
         cursor:pointer;
         ">
-        📋 Copy ID
+        📋 Copy TeachTwin ID
         </button>
 
         <script>
         function copyID() {{
             navigator.clipboard.writeText("{teacher_id}");
-            alert("TeachTwin ID copied!");
+            alert("TeachTwin ID copied successfully!");
         }}
         </script>
         """,
         height=60
     )
 
-          
-with btn2:
+with qr_col:
 
-    if st.button("📱 Generate QR", use_container_width=True):
+    st.info(
+        """
+📱 Student Connection
+
+Generate a QR code for quick student connection.
+"""
+    )
+
+    if st.button(
+        "📱 Generate QR Code",
+        use_container_width=True,
+        key="generate_teacher_qr"
+    ):
 
         qr_path = generate_qr(teacher_id)
 
-        st.success("QR Generated Successfully!")
+        st.success("QR Code Generated Successfully!")
 
-        st.image(qr_path, width=250)
+        st.image(qr_path, width=220)
 
         with open(qr_path, "rb") as file:
 
             st.download_button(
-                "⬇ Download QR",
+                "⬇ Download QR Code",
                 file,
                 file_name=f"{teacher_id}.png",
                 mime="image/png",
-                use_container_width=True
-            )    
-st.divider()
+                use_container_width=True,
+                key="download_teacher_qr"
+            )
+
+
 
 # ------------------------------------
 # Quick Actions
@@ -266,82 +272,40 @@ st.divider()
 
 st.subheader("⚡ Quick Actions")
 
-col1, col2 = st.columns(2)
+col1, col2, col3, col4 = st.columns(4)
 
-# -----------------------
-# Left Column
-# -----------------------
 with col1:
-
-    if st.button("📝 Create Assignment", use_container_width=True):
+    if st.button(
+        "📝 Create Assignment",
+        use_container_width=True,
+        key="quick_create_assignment"
+    ):
         st.switch_page("pages/14_📝_Create_Assignment.py")
 
-    if st.button("📚 Upload Study Material", use_container_width=True):
-        st.success("Scroll down to upload your PDF.")
-
-# -----------------------
-# Right Column
-# -----------------------
 with col2:
+    if st.button(
+        "📚 Upload Material",
+        use_container_width=True,
+        key="quick_upload_material"
+    ):
+        st.info("Scroll down to upload your study material.")
 
-    if st.button("📥 View Student Submissions", use_container_width=True):
+with col3:
+    if st.button(
+        "📥 Submissions",
+        use_container_width=True,
+        key="quick_submissions"
+    ):
         st.switch_page("pages/16_📥_View_Submissions.py")
 
-    if st.button("🤖 AI Assistant", use_container_width=True):
-        st.info("Coming Soon 🚀")
+with col4:
+    if st.button(
+        "🤖 AI Assistant",
+        use_container_width=True,
+        key="quick_ai_assistant"
+    ):
+        st.info("AI Assistant coming soon 🚀")
 
-
-# ------------------------------------
-# Upload Study Material
-# ------------------------------------
-st.subheader("📚 Upload Study Material")
-
-uploaded_file = st.file_uploader(
-    "Choose PDF",
-    type=["pdf"]
-)
-
-if uploaded_file is not None:
-
-    # Create folder if it doesn't exist
-    os.makedirs("uploads/materials", exist_ok=True)
-
-    file_path = os.path.join(
-        "uploads/materials",
-        uploaded_file.name
-    )
-
-    # Save uploaded PDF
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    # Read PDF
-    extracted_text = extract_pdf_text(file_path)
-
-    # Save into database
-    conn = sqlite3.connect("teachtwin.db")
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    INSERT INTO materials
-    (teacher_id, file_name, extracted_text)
-    VALUES (?, ?, ?)
-    """, (
-        teacher_id,
-        uploaded_file.name,
-        extracted_text
-    ))
-
-    conn.commit()
-    conn.close()
-
-    st.success("✅ PDF Uploaded Successfully!")
-
-    st.text_area(
-        "Extracted Text",
-        extracted_text,
-        height=250
-    )
 # ------------------------------------
 # Uploaded Materials
 # ------------------------------------
@@ -361,7 +325,7 @@ ORDER BY id DESC
 """, (teacher_id,))
 
 materials = cursor.fetchall()
-
+conn.close()
 
 if len(materials) == 0:
 
@@ -371,7 +335,7 @@ else:
 
     for material in materials:
 
-        col1, col2 = st.columns([8,1])
+        col1, col2 = st.columns([8, 1])
 
         with col1:
             st.write(f"📄 {material[1]}")
@@ -380,7 +344,24 @@ else:
 
             if st.button("🗑", key=f"delete_{material[0]}"):
 
-                conn = sqlite3.connect("teachtwin.db")
+                delete_conn = sqlite3.connect("teachtwin.db")
+                delete_cursor = delete_conn.cursor()
+
+                delete_cursor.execute(
+                    """
+                    DELETE FROM materials
+                    WHERE id = ? AND teacher_id = ?
+                    """,
+                    (material[0], teacher_id)
+                )
+
+                delete_conn.commit()
+                delete_conn.close()
+
+                st.success("Study material deleted successfully!")
+                st.rerun()
+
+        
 # ------------------------------------
 # Footer
 # ------------------------------------
