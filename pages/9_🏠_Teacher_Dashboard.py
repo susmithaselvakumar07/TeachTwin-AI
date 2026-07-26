@@ -307,6 +307,65 @@ with col4:
         st.info("AI Assistant coming soon 🚀")
 
 # ------------------------------------
+# Upload Study Material
+# ------------------------------------
+
+st.divider()
+
+st.subheader("📤 Upload Study Material")
+
+uploaded_file = st.file_uploader(
+    "Choose a PDF study material",
+    type=["pdf"],
+    key="study_material_uploader"
+)
+
+if uploaded_file is not None:
+
+    if st.button(
+        "⬆️ Upload Study Material",
+        use_container_width=True,
+        key="upload_study_material"
+    ):
+
+        with st.spinner("Processing study material... 📚"):
+
+            # Extract text from PDF
+            extracted_text = extract_pdf_text(
+                uploaded_file
+            )
+
+            # Save to database
+            conn = sqlite3.connect(
+                "teachtwin.db"
+            )
+
+            cursor = conn.cursor()
+
+            cursor.execute(
+                """
+                INSERT INTO materials
+                (teacher_id, file_name, extracted_text)
+                VALUES (?, ?, ?)
+                """,
+                (
+                    teacher_id,
+                    uploaded_file.name,
+                    extracted_text
+                )
+            )
+
+            conn.commit()
+            conn.close()
+
+            st.success(
+                "✅ Study material uploaded successfully!"
+            )
+
+            st.rerun()
+
+
+# ------------------------------------
 # Uploaded Materials
 # ------------------------------------
 
