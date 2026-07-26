@@ -1,17 +1,22 @@
-import fitz  # PyMuPDF
+import fitz
 
-def extract_pdf_text(pdf_path):
-    """
-    Extract all text from a PDF file.
-    """
 
-    document = fitz.open(pdf_path)
+def extract_pdf_text(uploaded_file):
 
-    text = ""
+    # Read the uploaded PDF directly from memory
+    pdf_bytes = uploaded_file.getvalue()
 
-    for page in document:
-        text += page.get_text()
+    # Open PDF from memory
+    pdf_document = fitz.open(
+        stream=pdf_bytes,
+        filetype="pdf"
+    )
 
-    document.close()
+    extracted_text = ""
 
-    return text
+    for page in pdf_document:
+        extracted_text += page.get_text()
+
+    pdf_document.close()
+
+    return extracted_text
